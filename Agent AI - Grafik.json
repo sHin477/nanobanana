@@ -1,0 +1,1613 @@
+{
+  "name": "Agent AI - Grafik",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-haiku-4-5-20251001",
+          "mode": "list",
+          "cachedResultName": "Claude Haiku 4.5"
+        },
+        "options": {
+          "thinking": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1696,
+        304
+      ],
+      "id": "23f25e22-0ecd-4b52-acae-d948f0b47a89",
+      "name": "Haiku 4.5",
+      "credentials": {
+        "anthropicApi": {
+          "id": "sebAVuPaU9vemklo",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-5-20250929",
+          "cachedResultName": "Claude Sonnet 4.5"
+        },
+        "options": {
+          "thinking": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1584,
+        304
+      ],
+      "id": "2f49cef5-b8d0-478e-aab6-3f019043c9e0",
+      "name": "Sonnet-4.5",
+      "credentials": {
+        "anthropicApi": {
+          "id": "sebAVuPaU9vemklo",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "C0A2ZNU8CEN",
+          "mode": "list",
+          "cachedResultName": "grafika"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        80,
+        288
+      ],
+      "id": "f1a69fc2-054d-4339-b00b-c27674789ed9",
+      "name": "📨 Wiadomość ze Slacka",
+      "webhookId": "85012c4d-51ab-4d28-ad94-f76d66d295f7",
+      "credentials": {
+        "slackApi": {
+          "id": "c9iXTOf0EDc5arrl",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url_private }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        272,
+        848
+      ],
+      "id": "e5aa262d-23ec-41ff-9d84-2ab1956d6094",
+      "name": "⬇️ Pobierz Plik ze Slacka",
+      "credentials": {
+        "slackApi": {
+          "id": "c9iXTOf0EDc5arrl",
+          "name": "Slack account"
+        },
+        "slackOAuth2Api": {
+          "id": "SZsSXu7iVT7jvXhH",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "={{ $binary.data.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1Mvt10VqL2iXRutfhuc7XoNdZQlqgXJ4r"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        496,
+        848
+      ],
+      "id": "c1dcc5ba-7962-49b8-9507-9ba5530da253",
+      "name": "☁️ Wgraj na Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "V6pYYQpHV0zZ1jND",
+          "name": "Google Drive nano banana"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        688,
+        848
+      ],
+      "id": "44d6ad79-585a-418a-9411-b200be8d3ffe",
+      "name": "🔓 Udostępnij Publicznie",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "V6pYYQpHV0zZ1jND",
+          "name": "Google Drive nano banana"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const urls = $('☁️ Wgraj na Google Drive').all().map(item => item.json.webContentLink);\nreturn [{ json: { image_input: urls } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        848
+      ],
+      "id": "4cc4d0f4-1741-4255-b0eb-c3e1efd203cd",
+      "name": "🔗 Zbierz Linki do Grafik"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.files.find(file => file.mimetype === 'audio/mp4')?.url_private_download }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        688,
+        432
+      ],
+      "id": "0f803967-b906-4277-bd97-400415d928ea",
+      "name": "📥 Pobierz Audio",
+      "credentials": {
+        "slackApi": {
+          "id": "c9iXTOf0EDc5arrl",
+          "name": "Slack account"
+        },
+        "googleTranslateOAuth2Api": {
+          "id": "Ix6oljfe24ivcDga",
+          "name": "Google Translate account"
+        },
+        "slackOAuth2Api": {
+          "id": "SZsSXu7iVT7jvXhH",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0cf33338-9591-46de-be62-fdab047b4ec4",
+              "leftValue": "={{ $json.files.some(file => file.mimetype === 'audio/mp4') }}",
+              "rightValue": "audio/mp4",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        688,
+        288
+      ],
+      "id": "8d2d5f90-a87d-483c-8c4e-94f3f739823e",
+      "name": "🎵 Czy jest audio?"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "pl"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        688,
+        592
+      ],
+      "id": "5e4f2e49-8147-4cb2-a732-3a8737b7defe",
+      "name": "🎙️ Transkrybuj Nagranie",
+      "credentials": {
+        "openAiApi": {
+          "id": "7nKslAA3XKBSsgcG",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const files = $('📨 Wiadomość ze Slacka').first().json.files;\n\nreturn files\n  .filter(file => file.mimetype !== 'audio/mp4')\n  .map(file => ({ json: file }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        848
+      ],
+      "id": "8037be11-b122-4a91-ae7a-30690e08ba12",
+      "name": "📂 Filtruj Załączniki"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5f113bab-51fa-482a-9939-5a546d5c702b",
+              "leftValue": "={{ $json.onlyAudioOrEmpty }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1072,
+        592
+      ],
+      "id": "3fd15e97-1a11-49fb-b9c6-fb41ef05ccf9",
+      "name": "📂 Czy są załączniki?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const files = $('📨 Wiadomość ze Slacka').first().json.files || [];\nconst result = files.length === 0 || (files.length === 1 && files[0].mimetype === 'audio/mp4');\nreturn [{ json: { onlyAudioOrEmpty: result } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        592
+      ],
+      "id": "71985cd8-a3c5-4ec4-a9f9-5bfe48c9b43d",
+      "name": " 🔍 Sprawdź Typ Załączników"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## 📥 DANE WEJŚCIOWE\n\nOtrzymujesz następujące zmienne:\n\n### 1. Prompt do poprawy/Wiadomość użytkownika\n```\n{{ $('📨 Wiadomość ze Slacka').first().json.text || $('🎙️ Transkrybuj Nagranie').first().json.text }}\n```\n*Tekst polecenia od użytkownika (po polsku)*\n\n### 2. Informacja o braku załączników graficznych\n```\n{{ $(' 🔍 Sprawdź Typ Załączników').first().json.onlyAudioOrEmpty }}\n\n```\n*Wartości:*\n- `true` → **BRAK** załączników graficznych\n- `false` → **SĄ** załączniki graficzne\n\n### 3. Gotowa lista załączników graficznych\n```\n{{ JSON.stringify($json.image_input) }}\n```\n*Zawiera wartość TYLKO jeśli `onlyAudioOrEmpty == false`*\n\n",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=<role>\nAgent orkiestrujący system NanoBanana Pro. Rozpoznajesz typ zapytania, wybierasz narzędzie, zarządzasz brand assets i zwracasz wynik z parametrem `type`.\n</role>\n\n<flow>\nKROK 0 → Określ `use_brand` (true/false)\nKROK 1 → Rozpoznaj typ: GENEROWANIE / POPRAWKA / KOSZTY\nKROK 2 → Wywołaj narzędzia z parametrami\nKROK 3 → Obsłuż błędy LUB zwróć wynik z `type`\n</flow>\n\n---\n\n<detection_use_brand>\n## KROK 0: DETEKCJA BRAND\n\n**`use_brand = true` TYLKO gdy:**\n- Jawna wzmianka o Akademii Automatyzacji / AA / \"naszej firmie\"\n- Konkretny produkt AA: \"post o kursie n8n w Akademii\"\n\n**`use_brand = false` we wszystkich innych przypadkach** (domyślnie)\n\nNigdy nie pytaj - decyduj samodzielnie.\n</detection_use_brand>\n\n---\n\n<detection_query_type>\n## KROK 1: TYP ZAPYTANIA\n\n| Typ | Trigger | Ścieżka |\n|-----|---------|---------|\n| GENEROWANIE | \"Stwórz...\", \"Wygeneruj...\", \"Zrób mi...\" + brak poprzedniej grafiki w pamięci | A |\n| POPRAWKA | \"Zmień...\", \"Popraw...\", \"Dodaj...\", \"Usuń...\" + jest poprzednia grafika w pamięci | B |\n| KOSZTY | \"Ile kosztowało...\", \"Sprawdź saldo\", \"Ile kredytów...\" | C |\n</detection_query_type>\n\n---\n\n<parameters_reference>\n## PARAMETRY - DEFINICJE\n\n### image_input (ZAWSZE tablica)\n| Sytuacja | Wartość |\n|----------|---------|\n| Brak załączników + `use_brand = false` | `[]` |\n| Brak załączników + `use_brand = true` | `[BRAND_URL]` |\n| Załączniki + `use_brand = false` | `[user_urls...]` |\n| Załączniki + `use_brand = true` | `[BRAND_URL, user_urls...]` |\n```\nBRAND_URL = \"https://drive.google.com/uc?id=1Mvt10VqL2iXRutfhuc7XoNdZQlqgXJ4r&export=download\"\nBRAND_INFO = \"Wykorzystaj załączone obrazy brandowe: Logo Akademii Automatyzacji\"\n```\n\n### has_images\n`true` gdy image_input zawiera jakiekolwiek URL-e, `false` gdy pusta tablica.\n\n### resolution\n- Domyślnie: `\"2K\"`\n- `\"4K\"` TYLKO gdy użytkownik napisał dosłownie \"4K\" lub \"4k\"\n\n### aspect_ratio\nPatrz sekcja <aspect_ratio_selection>\n</parameters_reference>\n\n---\n\n<path_a>\n## ŚCIEŻKA A: NOWA GENERACJA\n\n**Warunek:** Brak poprzedniej grafiki w pamięci.\n\n**enhance-prompt:**\n| Parametr | Wartość |\n|----------|---------|\n| text | prompt użytkownika (+ BRAND_INFO jeśli use_brand) |\n| has_images | według definicji |\n| feedback | `\"\"` (puste) |\n| use_brand | true/false |\n\n**nano-generator:**\n| Parametr | Wartość |\n|----------|---------|\n| enhanced_prompt | wynik z enhance-prompt |\n| aspect_ratio | według <aspect_ratio_selection> |\n| image_input | według definicji (tablica) |\n| resolution | \"2K\" lub \"4K\" |\n</path_a>\n\n---\n\n<path_b>\n## ŚCIEŻKA B: POPRAWKA\n\n**Warunek:** W pamięci jest poprzednia generacja grafiki.\n\n**enhance-prompt:**\n| Parametr | Wartość |\n|----------|---------|\n| text | ORYGINALNY prompt Z PAMIĘCI (+ BRAND_INFO jeśli use_brand) |\n| has_images | według definicji |\n| feedback | AKTUALNA wiadomość użytkownika |\n| use_brand | zachowaj z poprzedniej generacji |\n\n**nano-generator:**\n| Parametr | Wartość |\n|----------|---------|\n| enhanced_prompt | wynik z enhance-prompt |\n| aspect_ratio | zachowaj z poprzedniej lub według <aspect_ratio_selection> |\n| image_input | według definicji (tablica) |\n| resolution | \"2K\" lub \"4K\" |\n</path_b>\n\n---\n\n<path_c>\n## ŚCIEŻKA C: ANALIZA KOSZTÓW\n\n**cost-analysis:**\n- `text`: całe zapytanie użytkownika\n\nZwróć wynik bez modyfikacji formatowania markdown.\n</path_c>\n\n---\n\n<error_handling>\n## OBSŁUGA BŁĘDÓW Z NARZĘDZI\n\nGdy nano-generator zwróci błąd, **ZAWSZE** idź ścieżką `type: \"chat\"` i poinformuj użytkownika.\n\n### Mapowanie błędów na komunikaty:\n\n| Błąd z narzędzia | Komunikat dla użytkownika |\n|------------------|---------------------------|\n| `image_input file type not supported` | Nieobsługiwany format pliku graficznego. Obsługiwane formaty: PNG, JPG, JPEG, WEBP. |\n| `insufficient credits` / `not enough credits` | Brak wystarczających kredytów do wygenerowania grafiki. Sprawdź saldo komendą \"ile kredytów\". |\n| `image not accessible` / `cannot download` / `failed to fetch` | Nie mogę pobrać obrazu z podanego źródła. Upewnij się, że link jest publiczny i dostępny. |\n| `invalid URL` / `malformed URL` | Nieprawidłowy adres URL obrazu. Sprawdź poprawność linku. |\n| `image too large` / `file size exceeded` | Obraz jest zbyt duży. Maksymalny rozmiar to 20MB. |\n| `timeout` / `request timeout` | Przekroczono czas oczekiwania. Spróbuj ponownie za chwilę. |\n| Inny błąd | Wystąpił błąd podczas generowania: [treść błędu]. Spróbuj ponownie lub zmień parametry. |\n\n### Zasada:\nJeśli narzędzie zwraca błąd (nie URL grafiki), **NIGDY** nie zwracaj `type: \"image\"`. Zawsze `type: \"chat\"` z przyjaznym wyjaśnieniem.\n</error_handling>\n\n---\n\n<aspect_ratio_selection>\n## WYBÓR ASPECT RATIO\n\n**Priorytet 1 - jawne ratio:**\nUżytkownik napisał konkretnie (np. \"16:9\", \"kwadrat 1:1\", \"pionowy\", \"poziomy\") → użyj podanego.\n\n**Priorytet 2 - platforma:**\n| Platforma | Ratio |\n|-----------|-------|\n| Instagram post/kwadrat | 1:1 |\n| Instagram portrait | 4:5 |\n| Instagram story/reels, TikTok | 9:16 |\n| Facebook post | 1:1 |\n| Facebook portrait | 4:5 |\n| Facebook landscape/cover | 16:9 |\n| Twitter/X post, LinkedIn post, YouTube thumbnail | 16:9 |\n| Twitter/X cover | 21:9 |\n| Pinterest pin | 2:3 |\n| Portret | 3:4 |\n| Prezentacja | 4:3 |\n\n**Priorytet 3 - brak wskazówek:** `\"1:1\"`\n</aspect_ratio_selection>\n\n---\n\n<output_format>\n## KROK 3: FORMAT WYNIKU\n\n**Grafika (Ścieżka A/B - sukces):**\n```json\n{\n  \"type\": \"image\",\n  \"image_url\": \"[URL grafiki]\",\n  \"message\": \"[wiadomość]\",\n  \"enhancement_prompt\": \"[wynik enhance-prompt]\"\n}\n```\n\n**Błąd (Ścieżka A/B - niepowodzenie):**\n```json\n{\n  \"type\": \"chat\",\n  \"message\": \"[przyjazny komunikat o błędzie z sekcji error_handling]\"\n}\n```\n\n**Koszty (Ścieżka C):**\n```json\n{\n  \"type\": \"chat\",\n  \"message\": \"[raport z cost-analysis]\"\n}\n```\n</output_format>\n\n---\n\n<examples>\n## PRZYKŁADY\n\n### Przykład 1: Nowa generacja (Ścieżka A)\n```\nWIADOMOŚĆ: \"Stwórz grafikę kota na dachu o zachodzie słońca\"\nPAMIĘĆ: brak poprzedniej grafiki\nZAŁĄCZNIKI: brak\n\nDECYZJE:\n- use_brand = false (brak wzmianki o AA)\n- typ = GENEROWANIE (nowa grafika)\n- ścieżka = A\n\nPARAMETRY enhance-prompt:\n- text: \"Stwórz grafikę kota na dachu o zachodzie słońca\"\n- has_images: false\n- feedback: \"\"\n- use_brand: false\n\nPARAMETRY nano-generator:\n- aspect_ratio: \"1:1\" (brak wskazówek)\n- image_input: []\n- resolution: \"2K\"\n```\n\n### Przykład 2: Poprawka (Ścieżka B)\n```\nPAMIĘĆ:\n- User: \"Stwórz grafikę kota na dachu\"\n- Assistant: [grafika wygenerowana]\n\nWIADOMOŚĆ: \"Zmień kolor kota na rudy i dodaj chmury\"\nZAŁĄCZNIKI: brak\n\nDECYZJE:\n- use_brand = false (zachowane z poprzedniej)\n- typ = POPRAWKA (jest poprzednia grafika)\n- ścieżka = B\n\nPARAMETRY enhance-prompt:\n- text: \"Stwórz grafikę kota na dachu\" ← Z PAMIĘCI\n- has_images: false\n- feedback: \"Zmień kolor kota na rudy i dodaj chmury\" ← AKTUALNA\n- use_brand: false\n\nPARAMETRY nano-generator:\n- aspect_ratio: \"1:1\" (zachowane)\n- image_input: []\n- resolution: \"2K\"\n```\n\n### Przykład 3: Brand + załącznik + platforma\n```\nWIADOMOŚĆ: \"Post na Instagram dla Akademii Automatyzacji o nowym kursie\"\nPAMIĘĆ: brak\nZAŁĄCZNIKI: [\"https://user-image.jpg\"]\n\nDECYZJE:\n- use_brand = true (wzmianka o AA)\n- typ = GENEROWANIE\n- ścieżka = A\n\nPARAMETRY enhance-prompt:\n- text: \"Post na Instagram dla Akademii Automatyzacji o nowym kursie Wykorzystaj załączone obrazy brandowe: Logo Akademii Automatyzacji\"\n- has_images: true\n- feedback: \"\"\n- use_brand: true\n\nPARAMETRY nano-generator:\n- aspect_ratio: \"1:1\" (Instagram post)\n- image_input: [\"https://drive.google.com/uc?id=15bvv33_BNhSFx0VdJQCS_1YmIUyIEfff&export=download\", \"https://user-image.jpg\"]\n- resolution: \"2K\"\n```\n\n### Przykład 4: Koszty (Ścieżka C)\n```\nWIADOMOŚĆ: \"Ile kredytów zostało?\"\n\nDECYZJE:\n- typ = KOSZTY\n- ścieżka = C\n\nWYWOŁANIE:\n- cost-analysis z text: \"Ile kredytów zostało?\"\n\nWYNIK:\n- type: \"chat\"\n- message: [raport bez modyfikacji]\n```\n\n### Przykład 5: Obsługa błędu\n```\nWIADOMOŚĆ: \"Stwórz grafikę z tego pliku\"\nZAŁĄCZNIKI: [\"https://example.com/file.pdf\"]\n\nPRZEBIEG:\n1. Ścieżka A (nowa generacja)\n2. nano-generator zwraca: \"image_input file type not supported\"\n\nWYNIK:\n{\n  \"type\": \"chat\",\n  \"message\": \"Nieobsługiwany format pliku graficznego. Obsługiwane formaty: PNG, JPG, JPEG, WEBP.\"\n}\n```\n</examples>\n\n---\n\n<tools>\n## NARZĘDZIA\n- `enhance-prompt` - ulepszanie promptów\n- `nano-generator` - generowanie grafik\n- `cost-analysis` - analiza kosztów\n</tools>\n\n---\n\n<rules>\n## ZASADY KRYTYCZNE\n\n1. **image_input = TABLICA** — `[]` gdy pusta, `[\"url\"]` gdy z obrazami\n2. **Poprawka:** text Z PAMIĘCI, feedback = aktualna wiadomość\n3. **Brand:** domyślnie `false`, `true` tylko przy jawnej wzmiance o AA\n4. **Resolution:** domyślnie `\"2K\"`, `\"4K\"` tylko przy dosłownym \"4K\"\n5. **Jeden typ na zapytanie** — nie mieszaj image/chat\n6. **Błąd z narzędzia → ZAWSZE `type: \"chat\"`** — nigdy nie zwracaj `type: \"image\"` gdy narzędzie zwróciło błąd\n</rules>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1552,
+        576
+      ],
+      "id": "375af066-f62c-4180-b9b9-086e07486b47",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "content": "### 📎 Przetwarzanie Załączników\n",
+        "height": 256,
+        "width": 1216
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        784
+      ],
+      "typeVersion": 1,
+      "id": "7bec9a59-7c32-4cdd-8fc0-01d61a741aa3",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### 🎙️ Odbiór i Transkrypcja\n\n ",
+        "height": 528,
+        "width": 1216,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "f786c4a6-7acf-4a5f-970e-9b9eca4a386c",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "aec74074-e9bc-4b36-a9cd-4e7718ab76a8",
+              "leftValue": "={{ $json.bot_id }}",
+              "rightValue": "U09UPQB89UL",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "8f503470-c63b-4549-a23f-cb0e9b6bf9c2",
+              "leftValue": "={{ $json.subtype }}",
+              "rightValue": "message_deleted",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "ce81f7d8-b4b6-4af2-945d-fdea3375b776",
+              "leftValue": "={{ $json.subtype }}",
+              "rightValue": "=message_changed",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "3d880022-5082-46e5-8b92-6fe3738fbff0",
+              "leftValue": "={{ $json.subtype }}",
+              "rightValue": "=channel_join",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        288,
+        288
+      ],
+      "id": "04b4764a-2d64-411e-a0fc-7a0a4be73711",
+      "name": "🤖 Filtruj Boty"
+    },
+    {
+      "parameters": {
+        "toolDescription": "=",
+        "text": "=## DANE WEJŚCIOWE\n\n### Prompt użytkownika\n{{ $fromAI(\"text\", \"Oryginalny prompt użytkownika\", string) }}\n\n### Informacja o załącznikach\n{{ $fromAI(\"has_images\", \"Czy są załączone obrazy (true/false)\", boolean) }}\n\n### Feedback użytkownika (tylko jeżeli chce poprawić, to puste)\n{{ $fromAI(\"feedback\", \"Uwagi użytkownika dotyczące poprzednio wygenerowanej grafiki - co zmienić, poprawić lub dostosować\", string) }}\n\n### Brand context\n{{ $fromAI(\"use_brand\", \"Czy zastosować wytyczne brandowe Akademii Automatyzacji (true/false)\", boolean) }}\n\n## Aktualna data oraz czas\n{{ $now }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=<nano_banana_pro_guidelines>\n## STRUKTURA PROMPTU (kolejność elementów)\n\n| # | Element | Słowa kluczowe (EN) |\n|---|---------|-----------|\n| 1 | Style & Art Direction | photorealistic, hyper-detailed, Pixar-style, anime, watercolor, oil painting |\n| 2 | Scene Description | environment, atmosphere, mood |\n| 3 | Main Subject (Hero) | central object/character with specific details |\n| 4 | Camera, Lens & Cinematic | focal length (35mm, 85mm), aperture (f/1.8), perspective, composition |\n| 5 | Lighting Details | soft lighting, golden hour, rim light, volumetric rays, neon glow |\n| 6 | Texture, Color & Material | glossy, matte, pastel tones, metallic surfaces |\n| 7 | Negative Prompts (semantic) | describe what you WANT, not what to avoid |\n\n## ZASADY TECHNICZNE\n\n| Zasada | ❌ Źle | ✅ Dobrze |\n|--------|--------|-----------|\n| Szczegółowość | \"fantasy armor\" | \"ornate elven plate armor, etched with silver leaf patterns, pauldrons shaped like falcon wings\" |\n| Semantyczne negacje | \"no cars in the scene\" | \"empty, deserted street with no signs of traffic\" |\n| Warstwowe opisy | \"nice room\" | \"cozy coffee shop, warm wooden tones, gentle light leaks, vintage film look\" |\n\n⚠️ Nie przeładowuj - zbyt wiele instrukcji myli model. Skup się na kluczowych elementach.\n\n## SŁOWNIK KAMERY I OŚWIETLENIA\n\n**Perspektywa:** aerial, worm's-eye, over-the-shoulder, extreme close-up, wide shot, low angle\n**Obiektyw:** 35mm (szeroki), 50mm (naturalny), 85mm (portret), shallow DOF, f/1.8, f/2.8\n**Oświetlenie:** golden hour, blue hour, rim lighting, backlight, soft diffused, volumetric fog, neon glow\n**Color grading:** teal & orange, noir palette, pastel diffusion, muted tones, high contrast\n\n## SKŁADNIA WAG\n\n- `(sharp focus:1.3)` = wzmocnienie elementu\n- `(background blur:0.8)` = osłabienie elementu\n- Używaj dla kluczowych cech które muszą być wyraźne\n\n## SZABLON EDYCJI (gdy has_images = true)\n\n```\nUsing the provided image of [subject], [add/remove/modify] [element].\nEnsure the change [integrates with original lighting/style/composition].\nKeep [specific elements] unchanged.\n```\n</nano_banana_pro_guidelines>\n\n---\n\n<workflow>\n## KROK 1: ANALIZA INPUTU\n\nRozpoznaj:\n- **Typ:** nowa grafika vs edycja istniejącej\n- **Temat (subject):** kto/co jest głównym bohaterem\n- **Akcja:** co się dzieje\n- **Lokalizacja:** gdzie się dzieje\n- **Styl:** jaka estetyka (jeśli podana)\n- **Feedback:** czy to poprawka poprzedniej grafiki?\n\n## KROK 2: SPRAWDŹ KONTEKST\n\n| Warunek | Działanie |\n|---------|-----------|\n| `has_images = true` | Użyj SZABLONU EDYCJI |\n| `use_brand = true` | Zastosuj `<brand_rules>` |\n| `feedback ≠ \"\"` | Połącz oryginalny prompt z feedbackiem |\n\n## KROK 3: ZŁÓŻ PROMPT\n\n1. Ułóż elementy według STRUKTURY PROMPTU (7 kroków)\n2. Dodaj wagi `(element:1.x)` dla kluczowych cech\n3. Użyj słownika kamery/oświetlenia dla profesjonalnego efektu\n4. Jeśli use_brand = true → dodaj elementy z `<brand_rules>`\n5. Zachowaj zwięzłość - nie przeładowuj\n</workflow>\n\n---\n\n<constraints>\n## ⛔ ZAKAZ WYMYŚLANIA NIEZNANYCH TREŚCI\n\nNie masz dostępu do załączników. Nie znasz ich zawartości.\nOpisuj elementy DOKŁADNIE tak jak użytkownik je opisał.\n\n| Input użytkownika | ✅ Poprawnie | ❌ Hallucynacja |\n|-------------------|--------------|-----------------|\n| \"górna belka gdzie jest napis\" | \"top bar with text\" | \"top bar with text 'Gemini 2.0 Flash'\" |\n| \"zachowaj tekst\" | \"preserve the original text\" | \"preserve the text 'SOMETHING'\" |\n| \"logo w rogu\" | \"logo in the corner\" | \"Google logo in the corner\" |\n| \"tło z pierwszego obrazka\" | \"background from the first image\" | \"blue gradient background from the first image\" |\n\n## ZAKAZY OGÓLNE\n\n❌ Nie dodawaj elementów których użytkownik nie wymienił\n❌ Nie zmieniaj intencji użytkownika\n❌ Nie zgaduj treści tekstów, logo, kolorów z załączników\n❌ Nie przeładowuj promptu - max 3-4 zdania dla prostych grafik\n</constraints>\n\n---\n\n<examples>\n\n## PRZYKŁAD 1: Nowa grafika z brandem\n\n**Input:**\n```\ntext: \"stwórz post na Instagram o automatyzacji w biznesie\"\nfeedback: \"\"\nuse_brand: true\nhas_images: false\n```\n\n**Output:**\n```\nHyper-detailed digital illustration, dark corporate aesthetic. Modern workspace with floating holographic automation flowcharts and connected nodes, sleek laptop in center. Shot from 45-degree angle, soft rim lighting with neon yellow (#E5FF00) accent glows. Black background (#000000), clean minimalist composition. Bold white sans-serif text \"AUTOMATYZACJA\" top-center. Subtle grid pattern overlay, matte finish, (sharp focus:1.3), professional tech atmosphere.\n```\n\n## PRZYKŁAD 2: Infografika z konkretnymi elementami\n\n**Input:**\n```\ntext: \"infografika przedstawiająca 3 korzyści z automatyzacji: oszczędność czasu, redukcja błędów, skalowalność\"\nfeedback: \"\"\nuse_brand: true\nhas_images: false\n```\n\n**Output:**\n```\nClean infographic design, dark tech aesthetic. Three distinct icon sections arranged vertically on black background (#000000): clock icon for time savings, checkmark shield for error reduction, upward graph for scalability. Each section with bold white sans-serif label and neon yellow (#E5FF00) accent elements. Minimalist flat design, subtle grid pattern, (sharp focus:1.3), balanced composition with equal spacing, professional corporate style.\n```\n\n## PRZYKŁAD 3: Poprawka z feedbackiem\n\n**Input:**\n```\ntext: \"stwórz grafikę kota na dachu o zachodzie słońca\"\nfeedback: \"zmień kolor kota na rudego i dodaj więcej chmur\"\nuse_brand: false\nhas_images: false\n```\n\n**Output:**\n```\nPhotorealistic orange tabby cat sitting on terracotta roof tiles, golden hour sunset. Dramatic sky filled with scattered cumulus clouds in warm orange and pink tones. Shot on 85mm lens, shallow depth of field (f/2.8), backlit rim lighting creating warm glow around fur. Rich warm color grading, (fur detail:1.3), peaceful evening atmosphere, cinematic composition.\n```\n\n## PRZYKŁAD 4: Edycja istniejącego obrazu\n\n**Input:**\n```\ntext: \"usuń tło i wstaw gradient niebiesko-fioletowy\"\nfeedback: \"\"\nuse_brand: false\nhas_images: true\n```\n\n**Output:**\n```\nUsing the provided image, remove the background completely. Replace with smooth gradient transitioning from deep blue (#1a1a4e) to rich purple (#4a1a6b). Ensure the subject maintains original lighting and edges blend naturally with new background. Keep all foreground elements unchanged, preserve original color grading on subject.\n```\n\n## PRZYKŁAD 5: Prosty portret bez brandu\n\n**Input:**\n```\ntext: \"portret kobiety w parku jesienią\"\nfeedback: \"\"\nuse_brand: false\nhas_images: false\n```\n\n**Output:**\n```\nPhotorealistic portrait of a woman in autumn park, golden and orange fallen leaves surrounding her. Shot on 85mm lens, f/1.8 aperture creating creamy bokeh background. Soft golden hour lighting, warm color grading with orange and brown tones. Natural relaxed expression, (skin detail:1.2), shallow depth of field, editorial photography style.\n```\n\n## PRZYKŁAD 6: Złożona edycja wielu elementów\n\n**Input:**\n```\ntext: \"usuń tło i wstaw jako tło workflow z n8n z efektem lekkiego rozmycia, tekst zmień na 'TEN MODEL ZMIENIA WSZYSTKO', górną belkę gdzie jest napis zostaw tak jak wygląda obecnie\"\nfeedback: \"\"\nuse_brand: false\nhas_images: true\n```\n\n**Output:**\n```\nUsing the provided images, remove background from main subject. Replace with n8n workflow screenshot as new background, apply gaussian blur (strength 0.3) for depth effect. Change main text to read \"TEN MODEL ZMIENIA WSZYSTKO\" in bold, prominent position. Keep the top bar with text exactly as it appears in original - preserve its styling, colors and content unchanged. Ensure subject integrates naturally with blurred workflow background.\n```\n\n</examples>\n\n---\n\n<brand_rules>\n## KOLORY\n\n| Rola | Wartość | Użycie |\n|------|---------|--------|\n| Primary | #000000 | tło, dominujący kolor |\n| Secondary | #FFFFFF | tekst główny, kontrasty |\n| Accent | #E5FF00 | akcenty, CTA, wyróżnienia |\n\n## ELEMENTY WIZUALNE\n\n- **Grid pattern:** subtelna siatka jako tekstura tła (opcjonalnie)\n- **Logo placement:** lewy górny róg, mała skala\n- **Typografia:** bold, sans-serif, max 2 linie tekstu\n\n## LAYOUT\n\n- Jednolite ciemne tło (bez podziału na sekcje)\n- Centralny element jako focal point\n- Dużo przestrzeni negatywnej\n- Akcenty żółte punktowo, nie dominująco\n\n## ZAKAZY BRANDOWE\n\n❌ Nie dziel grafiki na sekcje z różnymi kolorami tła\n❌ Nie twórz struktury \"kanapka\" (jasne-ciemne-jasne)\n❌ Nie używaj gradientów na tle\n❌ Nie używaj więcej niż 3 kolorów\n❌ Nie umieszczaj tekstu na żółtym tle (słaba czytelność)\n</brand_rules>\n\n---\n\n<output_format>\nZwróć TYLKO zoptymalizowany prompt w języku angielskim.\n\n- Bez wyjaśnień\n- Bez formatowania markdown\n- Bez tagów XML\n- Bez cudzysłowów okalających\n- Jeden ciągły tekst (można użyć przecinków i kropek)\n</output_format>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        1792,
+        1120
+      ],
+      "id": "8939e7be-e4ac-4a4d-bea0-50c68ecd4cb6",
+      "name": "enhanced_prompt"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "enhanced_prompt"
+            },
+            {
+              "name": "aspect_ratio"
+            },
+            {
+              "name": "image_input"
+            },
+            {
+              "name": "resolution"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        1120
+      ],
+      "id": "ad9c63be-2088-4870-ab6d-d0c796b3ce10",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        496,
+        1120
+      ],
+      "id": "383a4e0c-5a08-4bc4-b905-42f12ce9cec4",
+      "name": "🔍 Sprawdź Status Zadania1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "XR5OU5YBDZSnX3xR",
+          "name": "KeiAi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data.state }}",
+                    "rightValue": "success",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d30117e7-a784-49bc-8f24-3731dec43f6d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "success"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "609bfc76-10ef-44fc-9f16-672ad419e67d",
+                    "leftValue": "={{ $json.data.state }}",
+                    "rightValue": "fail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "fail"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e52676e7-355e-4a6d-aa71-0b9a32c3b57b",
+                    "leftValue": "={{ $json.msg }}",
+                    "rightValue": "taskId is required",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Błąd"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        688,
+        1088
+      ],
+      "id": "5b7d55ce-c3d5-4bb5-bc99-17adbdf1ef99",
+      "name": "🔀 Sprawdź Wynik Generacji1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "3DmKNJKJIvcoCNbn"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "enhanced_prompt": "={{ $fromAI(\"enhanced_prompt\") }}",
+            "aspect_ratio": "={{ $fromAI(\"aspect_ratio\") }}",
+            "image_input": "={{ $fromAI(\"image_input\") }}",
+            "resolution": "={{ $fromAI(\"resolution\") }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "enhanced_prompt",
+              "displayName": "enhanced_prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "aspect_ratio",
+              "displayName": "aspect_ratio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "image_input",
+              "displayName": "image_input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "resolution",
+              "displayName": "resolution",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2064,
+        1120
+      ],
+      "id": "7e0e72ec-c9ba-4a77-b6e2-cadbbdf83086",
+      "name": "nano-generator"
+    },
+    {
+      "parameters": {
+        "content": "### Modele AI",
+        "height": 192,
+        "width": 272,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1552,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "0eccf05e-c1b8-4df2-96f9-ee80dac378cc",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"type\": {\n      \"type\": \"string\",\n      \"enum\": [\"image\", \"chat\"],\n      \"description\": \"Typ odpowiedzi - 'image' dla generowania grafik, 'chat' dla analizy kosztów\"\n    },\n    \"message\": {\n      \"type\": \"string\",\n      \"description\": \"Wiadomość tekstowa dla użytkownika\"\n    },\n    \"image_url\": {\n      \"type\": [\"string\", \"null\"],\n      \"description\": \"URL wygenerowanego obrazka (tylko dla type: 'image', null dla type: 'chat')\"\n    },\n    \"enhancement_prompt\": {\n      \"type\": [\"string\", \"null\"],\n      \"description\": \"Ulepszona wersja prompta (tylko dla type: 'image', null dla type: 'chat')\"\n    }\n  },\n  \"required\": [\"type\", \"message\"]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1440,
+        1120
+      ],
+      "id": "ddba0e38-7f11-4ad6-b6e5-1822f514ea45",
+      "name": " Parser JSON"
+    },
+    {
+      "parameters": {
+        "content": "### Nano Banana - Generowanie grafik",
+        "height": 496,
+        "width": 1216,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        1056
+      ],
+      "typeVersion": 1,
+      "id": "dd418209-e7c3-4b0f-9b2b-cfb2b02e4d25",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appzk47klGJBXk5da",
+          "mode": "list",
+          "cachedResultName": "Nano Banana Pro - Agent AI [Szablon]",
+          "cachedResultUrl": "https://airtable.com/appzk47klGJBXk5da"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl2H6n1BxqqkhIsb",
+          "mode": "list",
+          "cachedResultName": "Dane",
+          "cachedResultUrl": "https://airtable.com/appzk47klGJBXk5da/tbl2H6n1BxqqkhIsb"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Prompt": "={{ $('AI Agent').item.json.output.enhancement_prompt }}",
+            "Koszt": 0.12,
+            "Output": "={{ $('AI Agent').item.json.output.image_url }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Prompt",
+              "displayName": "Prompt",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Koszt",
+              "displayName": "Koszt",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Output",
+              "displayName": "Output",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created",
+              "displayName": "Created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2576,
+        464
+      ],
+      "id": "90f60c91-73e5-44bb-a5b3-16ca0ea18a17",
+      "name": "💾 Zapisz do Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "6HPyeNAbATtT5Fof",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.output.image_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2112,
+        464
+      ],
+      "id": "d72fdfd7-871b-4c70-bec2-bc3ac268eea0",
+      "name": "💾 Pobierz Wygenerowaną Grafikę"
+    },
+    {
+      "parameters": {
+        "content": "### Agent AI - Narzędzia\n",
+        "height": 400,
+        "width": 1344,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1312,
+        1056
+      ],
+      "typeVersion": 1,
+      "id": "1a0121d9-5896-4157-a308-90fc8897ba60",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Narzędzie Airtable pobierające dane o wygenerowanych grafikach z bazy. Umożliwia filtrowanie rekordów według daty utworzenia oraz innych kryteriów. Używane przez subagenta cost-analysis do analizy kosztów historycznych. Zwraca rekordy z kolumnami: Prompt, Koszt, Output, Created (format DD.MM.YYYY HH:mm). Obsługuje filtry Airtable do precyzyjnego wyszukiwania grafik z określonych okresów.\n\n**PARAMETRY:**\n- filterByFormula - formuła Airtable do filtrowania rekordów według określonych kryteriów (np. zakres dat)\n",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appzk47klGJBXk5da",
+          "mode": "list",
+          "cachedResultName": "Nano Banana Pro - Agent AI [Szablon]",
+          "cachedResultUrl": "https://airtable.com/appzk47klGJBXk5da"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl2H6n1BxqqkhIsb",
+          "mode": "list",
+          "cachedResultName": "Dane",
+          "cachedResultUrl": "https://airtable.com/appzk47klGJBXk5da/tbl2H6n1BxqqkhIsb"
+        },
+        "filterByFormula": "={{ $fromAI('filterByFormula', 'formuła Airtable do filtrowania rekordów według określonych kryteriów', 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        2208,
+        1296
+      ],
+      "id": "15803a8d-3f74-48d2-9171-bbd774a766a7",
+      "name": "get_cost_info",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "6HPyeNAbATtT5Fof",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "=",
+        "text": "=## DANE WEJŚCIOWE\n\n### Prompt użytkownika\n{{ $fromAI(\"text\", \"Wiadomość użytkownika\", \"string\") }}\n\n### Aktualna data\n{{ $now }}",
+        "options": {
+          "systemMessage": "=## ROLA\nAnalizujesz koszty wygenerowanych grafik na podstawie danych z Airtable. Każda grafika kosztuje **$0.12** i **24 kredyty**. Twoim zadaniem jest odpowiedź na pytania użytkownika o wydatki w określonych okresach oraz saldo kredytów.\n---\n## DOSTĘPNE NARZĘDZIA\n1. **get_cost_info** (Airtable) - pobieranie danych o wygenerowanych grafikach\n2. **credit_balance** - sprawdzenie pozostałych kredytów na koncie\n3. **Kalkulator** - obliczenia matematyczne\n---\n## STRUKTURA DANYCH AIRTABLE\n| Kolumna | Opis |\n|---------|------|\n| `Prompt` | Tekst prompta użytkownika |\n| `Koszt` | Stała wartość $0.12 |\n| `Output` | Miniatura wygenerowanej grafiki |\n| `Created` | Data i czas utworzenia (format: DD.MM.YYYY HH:mm) |\n---\n## ROZPOZNAWANIE ZAPYTAŃ\n**Zapytania o SALDO KREDYTÓW:**\n- \"Ile kredytów zostało?\"\n- \"Jakie jest saldo?\"\n- \"Ile grafik mogę jeszcze wygenerować?\"\n- \"Sprawdź kredyty\"\n\n**Zapytania o KOSZTY HISTORYCZNE:**\n- \"Ile kosztowały grafiki...\" \n- \"Jaki był koszt...\"\n- Wszystkie inne zapytania o okres/daty\n\n---\n## ALGORYTM PRACY\n\n### ŚCIEŻKA A: SALDO KREDYTÓW\n#### KROK 1: SPRAWDŹ SALDO\n**Narzędzie:** `credit_balance`\n#### KROK 2: OBLICZ MOŻLIWE GRAFIKI\n**Narzędzie:** Kalkulator\n**Formuła:** `saldo_kredytów / 24` (zaokrąglij w dół)\n#### KROK 3: ZWRÓĆ SALDO\n**Format odpowiedzi:**\n```\n💳 *Saldo kredytów*\n\n💰 *Pozostało kredytów*: [liczba]\n🎨 *Możliwych grafik*: [liczba]\n```\n\n### ŚCIEŻKA B: ANALIZA KOSZTÓW HISTORYCZNYCH\n#### KROK 1: INTERPRETUJ OKRES\nPrzeanalizuj zapytanie użytkownika i określ zakres dat:\n| Fraza użytkownika | Filtr dat |\n|-------------------|-----------|\n| \"dzisiaj\", \"dziś\" | Od 00:00:00 dzisiaj do teraz |\n| \"wczoraj\" | Cały dzień wczorajszy |\n| \"ostatni tydzień\", \"w tym tygodniu\" | Ostatnie 7 dni |\n| \"ostatni miesiąc\", \"w tym miesiącu\" | Ostatnie 30 dni |\n| \"od [data] do [data]\" | Konkretny zakres |\n| \"w [miesiąc] [rok]\" | Cały wskazany miesiąc |\n\n#### KROK 2: UTWÓRZ FILTR AIRTABLE\n**Narzędzie:** `get_cost_info`\n**Parametry:**\n- `filterByFormula`: Formuła filtrująca po dacie Created\n**Przykłady filtrów:**\n```javascript\n// Dzisiaj\nIS_AFTER({Created}, DATETIME_PARSE('2025-01-24 00:00:00'))\n// Wczoraj\nAND(\n  IS_AFTER({Created}, DATETIME_PARSE('2025-01-23 00:00:00')),\n  IS_BEFORE({Created}, DATETIME_PARSE('2025-01-24 00:00:00'))\n)\n// Ostatnie 7 dni\nIS_AFTER({Created}, DATETIME_PARSE('2025-01-17 00:00:00'))\n```\n\n#### KROK 3: POLICZ GRAFIKI\nZlicz liczbę zwróconych rekordów = liczba wygenerowanych grafik\n\n#### KROK 4: OBLICZ KOSZT I KREDYTY\n**Narzędzie:** Kalkulator\n- **Koszt:** `liczba_grafik × 0.12`\n- **Użyte kredyty:** `liczba_grafik × 24`\n\n#### KROK 5: SPRAWDŹ AKTUALNE SALDO (OPCJONALNE)\n**Narzędzie:** `credit_balance`\n**Narzędzie:** Kalkulator - oblicz możliwe grafiki: `saldo / 24`\n\n#### KROK 6: ZWRÓĆ ODPOWIEDŹ\n**KLUCZOWE: Zwracaj TYLKO tekst w dokładnie tym formacie. NIE DODAWAJ nic więcej:**\n\n**Format podstawowy (bez salda):**\n```\n📊 *Analiza kosztów grafik [okres]*\n\n🎨 *Wygenerowanych grafik*: [liczba]\n💰 *Łączny koszt*: $[kwota]\n📅 *Okres*: [zakres dat]\n```\n\n**Format rozszerzony (z saldem):**\n```\n📊 *Analiza kosztów grafik [okres]*\n\n🎨 *Wygenerowanych grafik*: [liczba]\n💰 *Łączny koszt*: $[kwota]\n💳 *Użyte kredyty*: [liczba]\n📅 *Okres*: [zakres dat]\n\n💰 *Pozostało kredytów*: [liczba]\n🎨 *Możliwych grafik*: [liczba]\n```\n\n**ZASADY FORMATOWANIA:**\n1. **Używaj TYLKO jednego * (nie **) dla bold** - to format Slack\n2. **NIE DODAWAJ żadnych dodatkowych informacji**\n3. **NIE UŻYWAJ backticks (```)** na początku ani końcu\n4. **Dokładnie ta struktura** - puste linie między sekcjami\n5. **Nie zmieniaj emoji ani struktury**\n\n**Przykłady poprawnych odpowiedzi:**\n\n*Tylko saldo:*\n```\n💳 *Saldo kredytów*\n\n💰 *Pozostało kredytów*: 480\n🎨 *Możliwych grafik*: 20\n```\n\n*Analiza z saldem:*\n```\n📊 *Analiza kosztów grafik dzisiaj*\n\n🎨 *Wygenerowanych grafik*: 8\n💰 *Łączny koszt*: $0.96\n💳 *Użyte kredyty*: 192\n📅 *Okres*: 24.11.2025\n\n💰 *Pozostało kredytów*: 480\n🎨 *Możliwych grafik*: 20\n```\n\n---\n## ZASADY DZIAŁANIA\n1. **Wybierz odpowiednią ścieżkę** na podstawie zapytania\n2. **ŚCIŚLE PRZESTRZEGAJ FORMATU** - żadnych dodatkowych informacji\n3. **Stały koszt** - każda grafika to zawsze $0.12 i 24 kredyty\n4. **Format waluty** - używaj formatu $X.XX (dwa miejsca po przecinku)\n5. **Zaokrąglanie grafik** - zawsze w dół (nie można wygenerować 0.5 grafiki)\n6. **Format dat** - proste daty bez godzin (DD.MM.YYYY lub zakres)"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        2176,
+        1120
+      ],
+      "id": "cd7a533a-b959-4537-8b62-3edd0b89cee5",
+      "name": "cost_info"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        2320,
+        1296
+      ],
+      "id": "f9f25c11-f3cc-4007-992d-7d6da2cc0847",
+      "name": "Kalkulator"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/chat/credit",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        2432,
+        1296
+      ],
+      "id": "058ab015-2739-44a5-9fab-fef71d8a7b3d",
+      "name": "credit_balance",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "XR5OU5YBDZSnX3xR",
+          "name": "KeiAi"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {
+          "channelId": "C0A2ZNU8CEN",
+          "threadTs": "={{ $('📨 Wiadomość ze Slacka').first().json.ts }}",
+          "title": "={{ $('AI Agent').item.json.output.message }}"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2352,
+        464
+      ],
+      "id": "f6956a63-097a-4e0f-8661-aa055767cbec",
+      "name": "📤 Wyślij na Slacka - Grafika",
+      "webhookId": "da0d574e-b0f7-4aee-9fc3-2fbb160efe7d",
+      "credentials": {
+        "slackApi": {
+          "id": "c9iXTOf0EDc5arrl",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0A2ZNU8CEN",
+          "mode": "list",
+          "cachedResultName": "grafika"
+        },
+        "text": "={{ $('AI Agent').item.json.output.message }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Ustaw ID - Pamięć').first().json.id }}"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2112,
+        672
+      ],
+      "id": "d66cb68c-bf38-4a5b-b9dd-3f7b8f4d8036",
+      "name": "📤 Wyślij na Slacka - Wiadomość",
+      "webhookId": "e6482091-56fd-4135-b36a-91c29d714dea",
+      "credentials": {
+        "slackApi": {
+          "id": "c9iXTOf0EDc5arrl",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.type }}",
+                    "rightValue": "=image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d629dd65-7380-4faa-b294-2a7a49fb368a"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Grafika"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7f6b1215-fde7-426f-b913-1784765ebbe9",
+                    "leftValue": "={{ $json.output.type }}",
+                    "rightValue": "chat",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Wiadomość"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        1904,
+        576
+      ],
+      "id": "0fa6b6b4-f4f6-497b-8407-0de00c687f16",
+      "name": "Grafika <--> Wiadomość"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e48229c6-285c-4b07-825b-70d89d3c7920",
+              "name": "id",
+              "value": "={{ $json.thread_ts ?? $json.ts }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        288
+      ],
+      "id": "5ede0cc1-b90f-4d3b-a002-e374a78b6a62",
+      "name": "Ustaw ID - Pamięć"
+    },
+    {
+      "parameters": {
+        "content": "# Agent AI - Nano Banana Pro",
+        "height": 1424,
+        "width": 2784,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        176
+      ],
+      "typeVersion": 1,
+      "id": "1cd5de17-a13d-4b30-97c4-67cf5dbdd56b",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        688,
+        1344
+      ],
+      "id": "3fa16979-36c8-4e0c-b4d7-429a158a7908",
+      "name": " ⏳ Odczekaj 10s",
+      "webhookId": "0d1c6d35-10c5-4166-83ad-4bb38db5050a"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "24f2da4f-6ae4-4940-b673-5fc4f830af9b",
+              "name": "msg",
+              "value": "={{ $('🎨 Utwórz Zadanie Nano Banana Pro1').item.json.msg }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        912,
+        1136
+      ],
+      "id": "bbeab66b-eaff-46c1-90fe-cad300fbc98b",
+      "name": "Ustaw komunikat błędu"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Ustaw ID - Pamięć').first().json.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1328,
+        1120
+      ],
+      "id": "aed37c48-05ca-4cbd-bdfb-f3b848c9511d",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"nano-banana-pro\",\n  \"input\": {\n    \"prompt\": \"{{ JSON.stringify($json.enhanced_prompt).slice(1, -1) }}\",\n    \"aspect_ratio\": \"{{ $json.aspect_ratio }}\",\n{{ $json.image_input ? '\"image_input\":' + (typeof $json.image_input === 'string' ? $json.image_input : JSON.stringify($json.image_input)) + ',' : \"\" }}\n    \"resolution\": \"{{ $json.resolution }}\",\n    \"output_format\": \"png\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        272,
+        1120
+      ],
+      "id": "8f03e585-25e3-4a7e-91fe-f92e801d74d6",
+      "name": "🎨 Utwórz Zadanie Nano Banana Pro1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "XR5OU5YBDZSnX3xR",
+          "name": "KeiAi"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "enhanced_prompt": "Hyper-detailed digital illustration, dark corporate aesthetic with black background (#000000). Akademii Automatyzacji logo positioned in top-left corner, small scale. Center composition features prominent card component with subtle elevation shadow, containing bold white sans-serif text \"PODSTAWY CLOUDCODE\" as main heading, followed by \"18.12 | 20:00\" in clean typography, bottom line reads \"ZAPRASZAMY\" in smaller font. Card element uses dark grey (#1a1a1a) background with neon yellow (#E5FF00) accent border or corner detail. Minimalist flat design, subtle grid pattern overlay on main background, (text clarity:1.3), balanced composition with ample negative space, professional tech event aesthetic, matte finish, Facebook post format 1200x630px optimized layout.",
+          "aspect_ratio": "16:9",
+          "image_input": "[\"https://drive.google.com/uc?id=1FTWLk51SBls8CJ-fW_aE7NshfES0Yq8L&export=download\"]",
+          "resolution": "2K"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Haiku 4.5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": " Parser JSON",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "enhanced_prompt",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "cost_info",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sonnet-4.5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "enhanced_prompt",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📨 Wiadomość ze Slacka": {
+      "main": [
+        [
+          {
+            "node": "🤖 Filtruj Boty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⬇️ Pobierz Plik ze Slacka": {
+      "main": [
+        [
+          {
+            "node": "☁️ Wgraj na Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "☁️ Wgraj na Google Drive": {
+      "main": [
+        [
+          {
+            "node": "🔓 Udostępnij Publicznie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔓 Udostępnij Publicznie": {
+      "main": [
+        [
+          {
+            "node": "🔗 Zbierz Linki do Grafik",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔗 Zbierz Linki do Grafik": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 Pobierz Audio": {
+      "main": [
+        [
+          {
+            "node": "🎙️ Transkrybuj Nagranie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎵 Czy jest audio?": {
+      "main": [
+        [
+          {
+            "node": "📥 Pobierz Audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": " 🔍 Sprawdź Typ Załączników",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎙️ Transkrybuj Nagranie": {
+      "main": [
+        [
+          {
+            "node": " 🔍 Sprawdź Typ Załączników",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📂 Filtruj Załączniki": {
+      "main": [
+        [
+          {
+            "node": "⬇️ Pobierz Plik ze Slacka",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📂 Czy są załączniki?": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "📂 Filtruj Załączniki",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " 🔍 Sprawdź Typ Załączników": {
+      "main": [
+        [
+          {
+            "node": "📂 Czy są załączniki?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 Filtruj Boty": {
+      "main": [
+        [
+          {
+            "node": "Ustaw ID - Pamięć",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "enhanced_prompt": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 Sprawdź Status Zadania1": {
+      "main": [
+        [
+          {
+            "node": "🔀 Sprawdź Wynik Generacji1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔀 Sprawdź Wynik Generacji1": {
+      "main": [
+        [],
+        [],
+        [
+          {
+            "node": "Ustaw komunikat błędu",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": " ⏳ Odczekaj 10s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "🎨 Utwórz Zadanie Nano Banana Pro1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "nano-generator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Parser JSON": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Grafika <--> Wiadomość",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💾 Pobierz Wygenerowaną Grafikę": {
+      "main": [
+        [
+          {
+            "node": "📤 Wyślij na Slacka - Grafika",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_cost_info": {
+      "ai_tool": [
+        [
+          {
+            "node": "cost_info",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kalkulator": {
+      "ai_tool": [
+        [
+          {
+            "node": "cost_info",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cost_info": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "credit_balance": {
+      "ai_tool": [
+        [
+          {
+            "node": "cost_info",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📤 Wyślij na Slacka - Grafika": {
+      "main": [
+        [
+          {
+            "node": "💾 Zapisz do Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Grafika <--> Wiadomość": {
+      "main": [
+        [
+          {
+            "node": "💾 Pobierz Wygenerowaną Grafikę",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "📤 Wyślij na Slacka - Wiadomość",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ustaw ID - Pamięć": {
+      "main": [
+        [
+          {
+            "node": "🎵 Czy jest audio?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " ⏳ Odczekaj 10s": {
+      "main": [
+        [
+          {
+            "node": "🔍 Sprawdź Status Zadania1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🎨 Utwórz Zadanie Nano Banana Pro1": {
+      "main": [
+        [
+          {
+            "node": "🔍 Sprawdź Status Zadania1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "dd61d4fe-efa1-4887-802d-c3de8cd4f99d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "eafe2bbd986238e59814b283c70b7d1fbe21985157b8fc2e91846a1f8d4dd92a"
+  },
+  "id": "3DmKNJKJIvcoCNbn",
+  "tags": []
+}
