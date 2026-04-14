@@ -1,0 +1,710 @@
+{
+  "name": "Proxmox Monitoring + AI Chatbot (Hybrid)",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "name": "CRON",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        944,
+        2272
+      ],
+      "id": "9285f0a3-2f5e-4043-b38f-dffd2706bd84"
+    },
+    {
+      "parameters": {
+        "url": "https://192.168.1.6:8006/api2/json/cluster/resources?type=vm",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "name": "GET VMs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1168,
+        2080
+      ],
+      "id": "7ceae3fe-e6f0-404b-87b3-422ad06c6897",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hL4ayEpVy0WNZAZh",
+          "name": "Proxmox-Daniel"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://192.168.1.6:8006/api2/json/nodes/grupadm2/lxc",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "name": "GET CT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1168,
+        2272
+      ],
+      "id": "999b099a-5824-48be-acca-86adc23d7a8b",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hL4ayEpVy0WNZAZh",
+          "name": "Proxmox-Daniel"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://192.168.1.6:8006/api2/json/nodes/grupadm2/status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "name": "GET NODE grupadm2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1168,
+        2464
+      ],
+      "id": "9d049f22-6ae1-45fe-afd7-d188f7ea6ac4",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hL4ayEpVy0WNZAZh",
+          "name": "Proxmox-Daniel"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "name": "MERGE ALL",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1392,
+        2256
+      ],
+      "id": "a6f9ec38-a7e1-4300-bf14-ced5e77f48b7"
+    },
+    {
+      "parameters": {
+        "functionCode": "const vm = items[0].json.data || [];\nconst ct = items[1].json.data || [];\nconst node = items[2].json.data || {};\n\nreturn [{\n  json: {\n    vm,\n    ct,\n    node\n  }\n}];"
+      },
+      "name": "NORMALIZE",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        2272
+      ],
+      "id": "f17e47ce-1330-4afe-9a2b-6e86a108e974"
+    },
+    {
+      "parameters": {
+        "functionCode": "const { vm, ct, node } = $json;\n\nreturn [{\n  json: {\n    prompt: `\nJesteś DevOps AI.\n\nWygeneruj raport Proxmox.\n\nWAŻNE:\n- NIE skracaj HTML\n- NIE używaj ...\n- każdy HTML musi być zamknięty\n\n=== NODE grupadm2 ===\n${JSON.stringify(node, null, 2)}\n\n=== VM ===\n${JSON.stringify(vm, null, 2)}\n\n=== CT ===\n${JSON.stringify(ct, null, 2)}\n\nDODAJ kolumnę \"Uwagi\":\n- running = OK\n- stopped = Maszyna zatrzymana\n- template = Szablon\n- cpu > 80% = Wysokie CPU\n- ram > 80% = Wysokie RAM\n\nOUTPUT TYLKO JSON:\n{\n  \"status\": \"OK\" | \"ALERT\",\n  \"message\": \"string\",\n  \"email_html\": \"FULL HTML 3 TABLES\"\n}\n`\n  }\n}];"
+      },
+      "name": "BUILD PROMPT",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        2272
+      ],
+      "id": "74ce6c2a-3106-465b-871f-2709aba12202"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/nano-banana-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/nano-banana-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.prompt }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "name": "GEMINI",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        2064,
+        2272
+      ],
+      "id": "9d90114d-e7aa-4f06-b8f9-2c8885361856",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "QHOT4WXwHnMa5lGc",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "let raw;\n\ntry {\n  raw = $json.content.parts[0].text;\n} catch (e) {\n  return [{ json: { status: \"ERROR\", email_html: \"<h2>AI ERROR</h2>\" } }];\n}\n\nraw = raw.replace(/```json/g,'').replace(/```/g,'').trim();\n\nconst match = raw.match(/\\{[\\s\\S]*\\}/);\n\nif(!match){\n  return [{ json: { status:\"ERROR\", email_html:\"<h2>NO JSON</h2>\" } }];\n}\n\ntry {\n  return [{ json: JSON.parse(match[0]) }];\n} catch (e) {\n  return [{ json: { status:\"ERROR\", email_html:\"<h2>PARSE ERROR</h2>\" } }];\n}\n"
+      },
+      "name": "PARSE AI",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2416,
+        2272
+      ],
+      "id": "acb6a4fa-b84d-4698-84f3-896c71aa2eef"
+    },
+    {
+      "parameters": {
+        "fromEmail": "daniel@asdevops.pl",
+        "toEmail": "daniel@asdevops.pl",
+        "subject": "🚨 Proxmox ALERT grupadm2",
+        "emailFormat": "html",
+        "html": "={{ $json.email_html }}",
+        "options": {}
+      },
+      "name": "SEND EMAIL",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        2864,
+        2176
+      ],
+      "id": "f76a9dc0-ce37-4dd6-9543-3a0d5cc0401f",
+      "webhookId": "8c3b982c-3668-41e8-b349-606429bc97a8",
+      "credentials": {
+        "smtp": {
+          "id": "u33ZaBCqCl4OkBg4",
+          "name": "SMTP Daniel"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "daniel@asdevops.pl",
+        "toEmail": "daniel@asdevops.pl",
+        "subject": "ℹ️ Proxmox OK",
+        "options": {}
+      },
+      "name": "SEND OK EMAIL",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        2864,
+        2368
+      ],
+      "id": "a7ecfc79-4608-42b8-9145-b50b84cd3447",
+      "webhookId": "c023b9e1-26c7-481f-b943-25489c1a8ab0",
+      "credentials": {
+        "smtp": {
+          "id": "u33ZaBCqCl4OkBg4",
+          "name": "SMTP Daniel"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.status}}",
+              "value2": "ALERT"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "IF ALERT2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        2272
+      ],
+      "id": "2573e769-c8cd-42bf-9543-bf62be556107"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "name": "TELEGRAM Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        944,
+        2880
+      ],
+      "id": "7a78885c-9d26-468e-88e8-8300a13f03c2",
+      "webhookId": "ff3bd380-1b86-4a8c-bfab-a4558b9b8d0c",
+      "credentials": {
+        "telegramApi": {
+          "id": "nf0WcF7M9110Bpkb",
+          "name": "Telegram-Daniel"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Parsuj wiadomość z Telegrama\nconst msg = $json.message || {};\nconst question = msg.text || 'status';\nconst chatId = msg.chat?.id || msg.from?.id || 'unknown';\nconst username = msg.from?.username || msg.from?.first_name || 'unknown';\n\nreturn [{\n  json: {\n    question,\n    chatId: String(chatId),\n    username,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "name": "PARSE TG MESSAGE",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        2880
+      ],
+      "id": "661bb65a-e90e-4bb5-88fb-f135b4b0bd9a"
+    },
+    {
+      "parameters": {
+        "url": "https://192.168.1.6:8006/api2/json/cluster/resources?type=vm",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "name": "TG GET VMs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1392,
+        2688
+      ],
+      "id": "dc17076a-02a6-4711-ae1f-6fce896b4efd",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hL4ayEpVy0WNZAZh",
+          "name": "Proxmox-Daniel"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://192.168.1.6:8006/api2/json/nodes/grupadm2/lxc",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "name": "TG GET CT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1392,
+        2880
+      ],
+      "id": "2119fbe0-c48f-44a7-a20e-4f0f3b8e6e83",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hL4ayEpVy0WNZAZh",
+          "name": "Proxmox-Daniel"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://192.168.1.6:8006/api2/json/nodes/grupadm2/status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "name": "TG GET NODE",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1392,
+        3072
+      ],
+      "id": "d8bdb22e-c87f-4ab3-87a7-7fbec28515c8",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hL4ayEpVy0WNZAZh",
+          "name": "Proxmox-Daniel"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "name": "TG MERGE",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1616,
+        2864
+      ],
+      "id": "0a5e7524-31be-4876-8d55-82d15689eed1"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Połącz dane Proxmox z pytaniem z Telegrama\nconst parseNode = $('PARSE TG MESSAGE').item.json;\nconst question = parseNode.question || 'status';\nconst chatId = parseNode.chatId || 'unknown';\nconst username = parseNode.username || 'unknown';\n\nconst vm = items[0].json.data || [];\nconst ct = items[1].json.data || [];\nconst node = items[2].json.data || {};\n\nconst cpuPercent = node.cpu ? Math.round(node.cpu * 100) : 0;\nconst ramPercent = node.memory ? Math.round((node.memory.used / node.memory.total) * 100) : 0;\n\nconst systemPrompt = `Jesteś asystentem DevOps dla serwera Proxmox VE (node: grupadm2).\nUżytkownik wysyła pytania przez Telegram.\nOdpowiadaj ZWIĘŹLE (max 3-4 zdania dla Telegrama). Używaj emoji.\n\nAktualne dane Proxmox:\n=== NODE ===\nCPU: ${cpuPercent}% | RAM: ${ramPercent}%\n${JSON.stringify(node, null, 2)}\n\n=== VMs ===\n${JSON.stringify(vm, null, 2)}\n\n=== CT ===\n${JSON.stringify(ct, null, 2)}\n\nUżytkownik: ${username}`;\n\nreturn [{\n  json: {\n    systemPrompt,\n    userMessage: question,\n    chatId,\n    username\n  }\n}];"
+      },
+      "name": "BUILD TG PROMPT",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        2880
+      ],
+      "id": "b8661f9c-57e7-4031-bcfc-d4312f5d62d6"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/nano-banana-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/nano-banana-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.systemPrompt + '\\n\\n---\\nPYTANIE: ' + $json.userMessage }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "name": "GEMINI TG",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        2064,
+        2880
+      ],
+      "id": "a7a48841-b28c-4943-abd0-e0261ee6be5b",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "QHOT4WXwHnMa5lGc",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "let answer;\ntry {\n  answer = $json.content.parts[0].text || 'Brak odpowiedzi';\n} catch(e) {\n  answer = '❌ Błąd AI';\n}\n\nlet chatId = 'unknown';\ntry {\n  chatId = $('BUILD TG PROMPT').item.json.chatId;\n} catch(e) {}\n\nreturn [{\n  json: {\n    answer,\n    chatId\n  }\n}];"
+      },
+      "name": "PARSE TG ANSWER",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2416,
+        2880
+      ],
+      "id": "e57f9fdb-ae0d-47f9-93d9-55caccf549fa"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.answer }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "name": "SEND TG REPLY",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2640,
+        2880
+      ],
+      "id": "3d2527ef-0920-4487-a4d5-7877e10efde2",
+      "webhookId": "b6f3b489-0bda-4fa8-9aab-9d0465c9bd42",
+      "credentials": {
+        "telegramApi": {
+          "id": "nf0WcF7M9110Bpkb",
+          "name": "Telegram-Daniel"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "CRON": {
+      "main": [
+        [
+          {
+            "node": "GET VMs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "GET CT",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "GET NODE grupadm2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET VMs": {
+      "main": [
+        [
+          {
+            "node": "MERGE ALL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET CT": {
+      "main": [
+        [
+          {
+            "node": "MERGE ALL",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "GET NODE grupadm2": {
+      "main": [
+        [
+          {
+            "node": "MERGE ALL",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "MERGE ALL": {
+      "main": [
+        [
+          {
+            "node": "NORMALIZE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NORMALIZE": {
+      "main": [
+        [
+          {
+            "node": "BUILD PROMPT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BUILD PROMPT": {
+      "main": [
+        [
+          {
+            "node": "GEMINI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GEMINI": {
+      "main": [
+        [
+          {
+            "node": "PARSE AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PARSE AI": {
+      "main": [
+        [
+          {
+            "node": "IF ALERT2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF ALERT2": {
+      "main": [
+        [
+          {
+            "node": "SEND EMAIL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SEND OK EMAIL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TELEGRAM Trigger": {
+      "main": [
+        [
+          {
+            "node": "PARSE TG MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PARSE TG MESSAGE": {
+      "main": [
+        [
+          {
+            "node": "TG GET VMs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "TG GET CT",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "TG GET NODE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TG GET VMs": {
+      "main": [
+        [
+          {
+            "node": "TG MERGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TG GET CT": {
+      "main": [
+        [
+          {
+            "node": "TG MERGE",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "TG GET NODE": {
+      "main": [
+        [
+          {
+            "node": "TG MERGE",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "TG MERGE": {
+      "main": [
+        [
+          {
+            "node": "BUILD TG PROMPT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BUILD TG PROMPT": {
+      "main": [
+        [
+          {
+            "node": "GEMINI TG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GEMINI TG": {
+      "main": [
+        [
+          {
+            "node": "PARSE TG ANSWER",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PARSE TG ANSWER": {
+      "main": [
+        [
+          {
+            "node": "SEND TG REPLY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "16ed28d2-b76b-472e-af89-bd52d423b30f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "eafe2bbd986238e59814b283c70b7d1fbe21985157b8fc2e91846a1f8d4dd92a"
+  },
+  "id": "Q2KMOEZRMg0JUDao",
+  "tags": []
+}
